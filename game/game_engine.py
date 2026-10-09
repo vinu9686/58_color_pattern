@@ -1,4 +1,5 @@
 import random
+
 import pygame
 from game.color_button import ColorButton
 
@@ -40,10 +41,15 @@ class GameEngine:
 
         self.start_next_round()
 
+    def _update_timing(self):
+        round_len = max(1, len(self.sequence))
+        self.flash_duration = max(120, 500 - (round_len - 1) * 22)
+        self.pause_duration = max(70, 220 - (round_len - 1) * 12)
+
     def start_next_round(self):
         new_color = random.randint(0, 3)
-
         self.sequence.append(new_color)
+        self._update_timing()
 
         self.player_input.clear()
         self.state = "WATCH"
@@ -91,7 +97,6 @@ class GameEngine:
                     btn.is_lit = True
                     self.player_lit_button = btn
                     self.player_lit_start = pygame.time.get_ticks()
-
                     self.register_player_click(btn.color_id)
                     break
 
