@@ -1,88 +1,56 @@
-# Memory Color Pattern Repair Lab
+# Memory Color Pattern
 
-This project is a pattern recall memory game (Simon-style) using **Pygame**. It introduces students to finite state machines (`WATCH`, `PLAYER_TURN`, `GAME_OVER`), time-based sequence playback, index-matching input validation, and grid-based visual button feedback within an object-oriented codebase.
----
+A Simon-style memory game built with **Python** and **Pygame**. Watch the color sequence, then repeat it by clicking the pads in the same order. Each successful round adds one color to the pattern.
 
-## What's Provided
+## Implemented tasks
 
-A working Memory Color Pattern game with:
+All four tasks from the original lab README have been implemented:
 
-- A 2x2 grid of four colored buttons (Red, Blue, Green, Yellow) with dim and illuminated lighting states
-- Automated timed playback that flashes the sequence step-by-step for the player to watch
-- Click detection registering player inputs and checking order against the target sequence
-- Score tracking, visual turn indicators, and a Game Over overlay with restart functionality
+1. **Sequence duplication fix** — each successful round appends exactly one new color to the existing sequence.
+2. **Dynamic playback speed** — flash and pause durations decrease as the sequence grows. The flash duration has a 120 ms minimum and the pause has a 70 ms minimum.
+3. **Pad sounds** — each color has a distinct generated tone. Tones play when a pad lights during playback and when the player clicks it. If audio is unavailable, the game continues without sound.
+4. **Player-turn timer** — a countdown bar appears while the player enters the pattern. The time allowance decreases in later rounds, to a minimum of 3 seconds. Running out of time ends the game.
 
-It has **one deliberate bug** and **three optional features** left as tasks to implement. You are expected to **analyze**, **interact with an AI assistant**, and **complete/fix** the game to make it fully functional and more interesting.
+## Requirements
 
-### **Use an LLM (e.g. ChatGPT or Claude) as your debugging and pair-programming partner for this lab.**
----
+- Python 3.10 or newer
+- Pygame
 
-## Getting Started
+## Setup and run
 
-### Setup
-
-1. Make sure you have Python 3.10+ installed.
-2. Install dependencies:
+Install Pygame:
 
 ```bash
-pip install pygame
+python -m pip install pygame
 ```
 
-3. Run the game:
+Start the game from the project directory:
 
 ```bash
 python main.py
 ```
 
-**Controls:** Left-click colored pads to repeat the sequence. Press R to restart after Game Over.
+## How to play
 
+- Watch the pads light up and listen to their tones.
+- Left-click the pads to repeat the complete sequence in order before the timer runs out.
+- An incorrect click or an expired timer ends the game.
+- Press **R** on the Game Over screen to start a new game.
+- Close the window to exit.
 
-## Tasks to Complete
+## Project structure
 
-Each task must be completed using an iterative process involving LLM suggestions and your critical code review.
-
-### Task 1: Fix the sequence duplication bug
-
-Advancing to the next round causes the memory pattern to explode in length rather than extending by one step. Ensure that each successful round strictly appends a single new color step to the active sequence.
-
-### Task 2: Implement dynamic playback acceleration
-
-Sequences flash at the exact same slow, fixed speed throughout every round. Make the playback dynamically accelerate by decreasing the flash and pause durations as the player advances further into higher rounds.
-
-### Task 3: Implement sound effects or audio frequencies
-
-The memory puzzle is completely silent, relying only on visual illumination. Assign a distinct musical pitch or audio frequency to each of the four colored pads that sounds whenever a tile is flashed or clicked.
-
-### Task 4: Implement a Player Turn Input Timer
-
-Players currently have unlimited time to study the board between clicks. Introduce a dynamic countdown timer bar for the player's turn that triggers a game over if time expires before completing the pattern.
-
----
-
-## Expected Behavior
-
-- At the beginning of each round, the game displays the accumulated sequence step-by-step with illuminated button states.   
-- Each round strictly appends one new step rather than duplicating previous patterns.  
-- Left-clicking a pad illuminates it briefly and registers the player's guess.
-- Entering any incorrect button immediately triggers the Game Over screen.
-- Pressing R on the Game Over screen clears the sequence, score, and state back to round 1.
----
-
-## Folder Structure
-
-```
-memory_color_pattern/
+```text
+.
 ├── game/
-│   ├── color_button.py
-│   └── game_engine.py
-├── main.py
+│   ├── color_button.py   # Pad drawing and hit detection
+│   └── game_engine.py    # Game state, sequence, timing, audio, and rendering
+├── main.py               # Pygame window and main loop
 └── README.md
 ```
 
-## Submission Checklist
+## Submission checklist
 
-Submission is only the following three things:
-
-- [] A 10-second video of gameplay **before** your changes, showing the bug/broken behavior
-- [] A 10-second video of gameplay **after** your changes, showing the bug fixed and the new features working
-- [] The Chat/LLM used page link, with the complete chat history
+- [ ] Record a 10-second video before the changes, showing the original issue.
+- [ ] Record a 10-second video after the changes, showing the fixed sequence and implemented features.
+- [ ] Include the link to the LLM chat page with the complete conversation history.
