@@ -38,6 +38,9 @@ class GameEngine:
         self.player_lit_start = 0
         self.player_flash_duration = 150
 
+        self.turn_deadline = 0
+        self.turn_limit_ms = 9000
+
         self.sound_map = self._build_sounds()
 
         self.font_title = pygame.font.SysFont(None, 40)
@@ -78,6 +81,7 @@ class GameEngine:
         round_len = max(1, len(self.sequence))
         self.flash_duration = max(120, 500 - (round_len - 1) * 22)
         self.pause_duration = max(70, 220 - (round_len - 1) * 12)
+        self.turn_limit_ms = max(3000, 9000 - (round_len - 1) * 300)
 
     def start_next_round(self):
         new_color = random.randint(0, 3)
@@ -89,6 +93,7 @@ class GameEngine:
         self.showing_step = 0
         self.step_start_time = pygame.time.get_ticks()
         self.is_flashing = True
+        self.turn_deadline = 0
         self.buttons[self.sequence[0]].is_lit = True
         self._play_button_sound(self.sequence[0])
 
@@ -119,6 +124,10 @@ class GameEngine:
                         self.step_start_time = now
                     else:
                         self.state = "PLAYER_TURN"
+                        self.turn_deadline = now + self.turn_limit_ms
+        elif self.state == "PLAYER_TURN":
+            if now >= self.turn_deadline:
+                self.state = "GAME_OVER"
 
     def handle_event(self, event):
         if self.state == "GAME_OVER":
@@ -152,6 +161,7 @@ class GameEngine:
         self.sequence.clear()
         self.player_input.clear()
         self.score = 0
+        self.turn_deadline = 0
         for btn in self.buttons:
             btn.is_lit = False
         self.player_lit_button = None
@@ -170,6 +180,19 @@ class GameEngine:
         status_color = (190, 195, 205) if self.state == "WATCH" else (80, 240, 130)
         status_surf = self.font_medium.render(status_text, True, status_color)
         screen.blit(status_surf, (self.width // 2 - status_surf.get_width() // 2, 95))
+
+        if self.state == "PLAYER_TURN":
+            timer_remaining = max(0, self.turn_deadline - pygame.time.get_ticks())
+            timer_ratio = max(0.0, timer_remaining / self.turn_limit_ms)
+            timer_bar_width = 260
+            timer_bar_x = self.width // 2 - timer_bar_width // 2
+            timer_bar_y = 440
+            timer_fill_width = int(timer_bar_width * timer_ratio)
+            timer_outline = pygame.Rect(timer_bar_x, timer_bar_y, timer_bar_width, 18)
+            timer_fill = pygame.Rect(timer_bar_x, timer_bar_y, timer_fill_width, 18)
+            pygame.draw.rect(screen, (70, 75, 85), timer_outline, border_radius=8)
+            color = (40, 220, 110) if timer_ratio > 0.35 else (230, 170, 50) if timer_ratio > 0.15 else (220, 80, 80)
+            pygame.draw.rect(screen, color, timer_fill, border_radius=8)
 
         for btn in self.buttons:
             btn.render(screen)
