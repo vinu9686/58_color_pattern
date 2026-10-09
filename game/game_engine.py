@@ -1,4 +1,6 @@
+import math
 import random
+from array import array
 
 import pygame
 from game.color_button import ColorButton
@@ -36,10 +38,41 @@ class GameEngine:
         self.player_lit_start = 0
         self.player_flash_duration = 150
 
+        self.sound_map = self._build_sounds()
+
         self.font_title = pygame.font.SysFont(None, 40)
         self.font_medium = pygame.font.SysFont(None, 28)
 
         self.start_next_round()
+
+    def _build_sounds(self):
+        tones = {0: 220, 1: 330, 2: 440, 3: 587}
+        if pygame.mixer.get_init() is None:
+            try:
+                pygame.mixer.init()
+            except pygame.error:
+                return {}
+
+        sounds = {}
+        try:
+            for color_id, frequency in tones.items():
+                samples = int(22050 * 0.18)
+                waveform = array('h')
+                for i in range(samples):
+                    value = int(32767 * math.sin(2 * math.pi * frequency * i / 22050))
+                    waveform.append(value)
+                sounds[color_id] = pygame.mixer.Sound(buffer=waveform.tobytes())
+        except (pygame.error, ValueError, TypeError):
+            return {}
+        return sounds
+
+    def _play_button_sound(self, color_id):
+        if color_id is None or color_id not in self.sound_map:
+            return
+        try:
+            self.sound_map[color_id].play()
+        except (pygame.error, AttributeError):
+            pass
 
     def _update_timing(self):
         round_len = max(1, len(self.sequence))
@@ -57,6 +90,7 @@ class GameEngine:
         self.step_start_time = pygame.time.get_ticks()
         self.is_flashing = True
         self.buttons[self.sequence[0]].is_lit = True
+        self._play_button_sound(self.sequence[0])
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -80,6 +114,7 @@ class GameEngine:
                     if self.showing_step < len(self.sequence):
                         next_id = self.sequence[self.showing_step]
                         self.buttons[next_id].is_lit = True
+                        self._play_button_sound(next_id)
                         self.is_flashing = True
                         self.step_start_time = now
                     else:
@@ -97,6 +132,7 @@ class GameEngine:
                     btn.is_lit = True
                     self.player_lit_button = btn
                     self.player_lit_start = pygame.time.get_ticks()
+                    self._play_button_sound(btn.color_id)
                     self.register_player_click(btn.color_id)
                     break
 
